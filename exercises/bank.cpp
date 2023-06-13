@@ -32,8 +32,6 @@ void BankAccount::printDetails()
     std::cout << "Bank Account " << id << " , Balance " << balance << std::endl;
 }
 
-// В инициализиращия списък използваме конструктора с един параметър на базовия клас.
-// В противен случай ще бъде изпозлван този по подразбиране.
 PaymentAccount::PaymentAccount(int id, double maxOverdraft) : BankAccount(id), maxOverdraft(maxOverdraft) {}
 
 void PaymentAccount::withdraw(double money)
@@ -46,7 +44,7 @@ void PaymentAccount::withdraw(double money)
 
 void PaymentAccount::printDetails()
 {
-    // Извикваме метод на базовия клас
+   
     BankAccount::printDetails();
     std::cout << "Max overdraft " << maxOverdraft << std::endl;
 }
@@ -100,9 +98,7 @@ void BankProfile::deposit(int id, double money)
 
 BankAccount *BankProfile::getAccount(int id)
 {
-    // Използваме метода find за търсене, подавайки ламбда функция.
-    // Кодът става експресивен - в масива accounts търсим елемент, чието id съвпада с това, което сме подали
-    // на метода getAccount
+    
     int index = accounts.find([id](BankAccount *account) -> bool { return account->getId() == id; });
 
     return accounts.get(index);
