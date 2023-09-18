@@ -1,0 +1,431 @@
+/*Task 3: 
+Write a recursive function which gets a string and a number n and a string or char which will be
+used as a separator. 
+The output should be the input string concatenated N-times with itself separated by
+the separator.  
+*/
+
+#include <iostream>
+#include <string>
+using std::cin;
+using std::cout;
+
+std::string concatenateNTimes(const std::string str, int n, std::string separator){
+    if(n == 1){
+        return str;
+    }
+    return str + separator + concatenateNTimes(str, n - 1, separator);
+}
+
+int main(){
+    // std::string str = "Inensia";
+    // int n = 3;
+    // std::string separator = "<3";
+
+    std::string str;
+    cout<<"Enter a string: ";
+    std::getline(cin, str);//read a line of text including spaces
+                            //std::cin reads only a single word or a sequence of characters until it finds whitespace,tab etc.
+
+    int n;
+    cout<<"Enter a number: ";
+    cin >> n;
+
+    cin.ignore();
+    std::string separator;
+    cout <<"Enter a separator: ";
+    std::getline(cin, separator);
+
+    std::string result = concatenateNTimes(str,n,separator);
+    cout << "The result is: " << result<< "\n";
+}
+
+
+
+/*Task 1: 
+We need to store anonymous data about programmers’ salary and position.  
+
+Create a binary file called salary.bin.
+
+Until there is input from the console write the data to the file. 
+
+Then read the file and calculate the average salary of a position including a word read from the console. 
+
+Round the result to 2 decimal places.  
+
+Example:  
+Input:
+ 
+Java Developer 4200 
+C++ Developer 5000 
+JavaScript Developer 1000 
+Junior C++ Developer 1500 
+Software Engineer 3400 
+Game Developer (C++) 4000 
+C++ 
+
+Output:  
+Average C++ salary is: 3500*/
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iomanip>
+
+// Structure to store programmer information
+struct Programmer{
+    std::string position;
+    double salary;
+};
+
+int main(){
+    //Create a binary file called salary.bin.
+    std::ofstream file("salary.bin", std::ios::binary);
+    if(!file){
+        std::cerr << "Failed to create the file." << std::endl;
+        return 1;
+    }
+
+    // Until there is input from the console write the data to the file. 
+    // Loop to receive input from the console and write data to the file
+    while(true){
+        Programmer programmer;
+
+        //Receive position from the console
+        std::cout << "Enter the programmer's position (or press enter to quit): ";
+        std::getline(std::cin, programmer.position);
+
+        //If the position is empty (enter pressed), break out of the loop
+        if (programmer.position.empty())
+            break;
+
+        //Receive salary from the console
+        std::cout << "Enter the programmer's salary: ";
+        std::cin >> programmer.salary;
+        std::cin.ignore(); // Ignore the newline character left in the input stream
+
+        //Write programmer data to the file
+        file.write(reinterpret_cast<char*>(&programmer), sizeof(programmer));
+
+        std::cout << "Data has been written to the file." << std::endl;
+    }
+
+    file.close();
+
+    // Open the binary file called salary.bin for reading
+    std::ifstream readFile("salary.bin", std::ios::binary);
+    if (!readFile) {
+        std::cerr << "Failed to open the file." << std::endl;
+        return 1;
+    }
+
+    std::string wordToMatch;
+    std::cout << "Enter a word to match positions (case-sensitive): ";
+    //std::cin >> wordToMatch;
+    std::getline(std::cin, wordToMatch);
+
+    double totalSalary = 0.0;
+    int counter = 0;
+
+    // Read and process the programmer data from the file
+    Programmer readProgrammer;
+    while (readFile.read(reinterpret_cast<char*>(&readProgrammer), sizeof(readProgrammer))) {
+        if (readProgrammer.position == wordToMatch) {
+            totalSalary += readProgrammer.salary;
+            counter++;
+        }
+    }
+
+    // Calculate the average salary
+    double averageSalary = (counter != 0) ? (totalSalary / counter) : 0;
+    
+
+    // Round the average salary to 2 decimal places
+    std::cout << std::fixed << std::setprecision(2);
+    std::cout << "Average salary for positions matching \"" << wordToMatch << "\": $" << averageSalary << std::endl;
+
+    // Close the file
+    readFile.close();
+
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+#include "Student.hpp"
+
+int Student::generateFacultyNumber(){
+    return rand();
+}
+
+void Student::cleanup(){
+    delete[] name;
+}
+
+void Student::copy(const Student& other){
+    name = new char[strlen(other.name) +1]{'\0'};
+    strcpy(name, other.name);
+
+    facultyNumber = other.facultyNumber;
+    marks = other.marks;
+}
+
+Student::Student(const char* _name, int _facultyNumber)
+    : name(nullptr), facultyNumber(_facultyNumber) {
+    if(_name){
+        name = new char[strlen(_name) + 1];
+        strcpy(name, _name);
+    }
+}
+
+Student::Student(const Student& other) {
+    copy(other);
+}
+
+Student& Student:: operator=(const Student& other){
+    if(this != &other){
+        cleanup();
+        copy(other);
+    }
+    return *this;
+}
+
+Student::~Student(){
+    cleanup();
+};
+
+char* Student::getName()const{
+    return name;
+}
+
+int Student::getFacultyNumber()const{
+    return facultyNumber;
+}
+
+std::vector<double> Student:: getMarks()const{
+    return marks;
+}
+
+void Student::setName(const char* _name){
+    strcpy(name, _name);
+}
+
+void Student::setFAcultyNumber(int _facultyNumber){
+    facultyNumber = _facultyNumber;
+}
+
+void Student::setMarks(const std::vector<double>& studentMarks){
+    marks = studentMarks;
+}
+
+void Student::print() const {
+    std::cout << "Name: " << name << std::endl;
+    std::cout << "Faculty Number: " << facultyNumber << std::endl;
+    std::cout << "Marks: ";
+    for (std::size_t i = 0; i < marks.size(); ++i) {
+        std::cout << marks[i] << " ";
+    }
+    std::cout << std::endl;
+}
+
+double Student::calculateGPA(const std::vector<double>& marks) const{
+    double totalMarks = 0.0;
+    for (std::size_t i = 0; i < marks.size(); ++i) {
+        totalMarks += marks[i];
+    }
+    double averageMark = totalMarks / marks.size();
+    averageMark = static_cast<int>(averageMark * 100 + 0.5) / 100.0;
+    return averageMark;
+}
+
+double Student::calculateStudentGPA(const std::vector<Student>& students, const char* name) const{
+    for (std::size_t i = 0; i < students.size(); ++i) {
+        if (std::strcmp(students[i].getName(), name) == 0) {
+            return calculateGPA(students[i].getMarks());
+        }
+    }
+    return 0.0;
+} 
+
+int main() {
+    std::srand(static_cast<unsigned>(std::time(nullptr)));
+
+    std::vector<Student> students;
+
+    int numStudents;
+    std::cout << "Enter the number of students: ";
+    std::cin >> numStudents;
+
+    for (int i = 0; i < numStudents; ++i) {
+        std::string name;
+        std::cout << "Enter name for student " << i + 1 << ": ";
+        std::cin >> name;
+
+        int facultyNumber = std::rand();
+
+        Student student(name.c_str(), facultyNumber);
+
+        std::vector<double> marks;
+        int numMarks;
+        std::cout << "Enter the number of marks for " << name << ": ";
+        std::cin >> numMarks;
+
+        for (int j = 0; j < numMarks; ++j) {
+            double mark;
+            std::cout << "Enter mark " << j + 1 << ": ";
+            std::cin >> mark;
+            marks.push_back(mark);
+        }
+
+        student.setMarks(marks);
+
+        students.push_back(student);
+    }
+
+    for (std::size_t i = 0; i < students.size(); ++i) {
+        const Student& student = students[i];
+        double gpa = student.calculateGPA(student.getMarks());
+        std::cout << "Student: " << student.getName() << ", Faculty Number: " << student.getFacultyNumber() << ", GPA: " << gpa << std::endl;
+    }
+
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+/*
+Create a class Student. 
+The student should have a name (character string of arbitrary length),
+                          faculty number which has to be generated randomly and 
+                          array of marks with arbitrary length. 
+
+Create SET and GET METHODS of your choice.  
+After that CREATE a function which gets an array of Students (can be a vector too) 
+                                    and a name 
+                                    and output the GPA of the student.
+*/
+
+#ifndef STUDENT_HPP
+#define STUDENT_HPP
+
+#include <cstring>
+#include <iostream>
+#include <vector>
+#include <cstdlib>// For rand() function
+
+
+class Student{
+private:
+    char* name;
+    int facultyNumber;
+    //int facultyNumber = rand();
+    std::vector<double> marks;
+
+    
+    void cleanup();
+    void copy(const Student& other);
+
+public:
+
+    Student(const char* _name = "<anonymous>", int _fn = 0);
+    Student(const Student& other);
+    Student& operator=(const Student& other);
+    ~Student();
+    
+    int generateFacultyNumber();
+
+
+    char* getName()const;
+    int getFacultyNumber()const;
+    std::vector<double> getMarks()const;
+
+    void setName(const char* _name);
+    void setFAcultyNumber(int _facultyNumber);
+    void setMarks(const std::vector<double>& studentMarks);
+
+    double calculateGPA(const std::vector<double>& marks) const;
+    double calculateStudentGPA(const std::vector<Student>& students, const char* name)const;
+    void print()const;
+
+};
+
+#endif
+/*
+Create a class Student. 
+The student should have a name (character string of arbitrary length),
+                          faculty number which has to be generated randomly and 
+                          array of marks with arbitrary length. 
+
+Create SET and GET METHODS of your choice.  
+After that CREATE a function which gets an array of Students (can be a vector too) 
+                                    and a name 
+                                    and output the GPA of the student.
+*/
+
+#ifndef STUDENT_HPP
+#define STUDENT_HPP
+
+#include <cstring>
+#include <iostream>
+#include <vector>
+#include <cstdlib>// For rand() function
+
+
+class Student{
+private:
+    char* name;
+    int facultyNumber;
+    //int facultyNumber = rand();
+    std::vector<double> marks;
+
+    
+    void cleanup();
+    void copy(const Student& other);
+
+public:
+
+    Student(const char* _name = "<anonymous>", int _fn = 0);
+    Student(const Student& other);
+    Student& operator=(const Student& other);
+    ~Student();
+    
+    int generateFacultyNumber();
+
+
+    char* getName()const;
+    int getFacultyNumber()const;
+    std::vector<double> getMarks()const;
+
+    void setName(const char* _name);
+    void setFAcultyNumber(int _facultyNumber);
+    void setMarks(const std::vector<double>& studentMarks);
+
+    double calculateGPA(const std::vector<double>& marks) const;
+    double calculateStudentGPA(const std::vector<Student>& students, const char* name)const;
+    void print()const;
+
+};
+
+#endif
